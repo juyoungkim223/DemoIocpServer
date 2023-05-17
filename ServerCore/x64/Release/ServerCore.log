@@ -1,0 +1,6 @@
+﻿  pch.cpp
+  CoreGlobal.cpp
+  CorePch.cpp
+  CoreTLS.cpp
+  ThreadManager.cpp
+  ServerCore.vcxproj -> C:\Develop\CPPServer\Server\Libraries\Release\ServerCore.lib
