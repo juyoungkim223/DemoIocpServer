@@ -1,2 +1,2 @@
-﻿  LINK : C:\Develop\CPPServer\Server\Binary\Debug\DummyClient.exe not found or not built by the last incremental link; performing full link
+﻿  DummyClient.cpp
   DummyClient.vcxproj -> C:\Develop\CPPServer\Server\Binary\Debug\DummyClient.exe

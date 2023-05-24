@@ -14,7 +14,7 @@ private:
 	void Dfs(int32 index);
 private:
 	unordered_map<const char*, int32> _nameToId;
-	unordered_map<int32, const char*> _IdToName;
+	unordered_map<int32, const char*> _idToName;
 	stack<int32> _lockStack;
 	map<int32, set<int32>> _lockHistory; // 간선정보
 	Mutex _lock;

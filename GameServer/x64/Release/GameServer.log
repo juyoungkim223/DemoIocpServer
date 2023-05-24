@@ -1,7 +1,7 @@
-﻿  GameServer.cpp
+﻿  AccountManager.cpp
   Generating code
-  0 of 224 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  52 of 526 functions ( 9.9%) were compiled, the rest were copied from previous compilation.
+    8 functions were new in current compilation
+    5 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   GameServer.vcxproj -> C:\Develop\CPPServer\Server\Binary\Release\GameServer.exe

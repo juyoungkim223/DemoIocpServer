@@ -20,10 +20,22 @@
 
 #define USE_MANY_LOCKS(count) Lock _locks[count]; // 여러개 사용한다면
 #define USE_LOCK USE_MANY_LOCKS(1) // 하나만 사용한다면
-#define READ_LOCK_IDX(idx) ReadLockGuard readLockGurad_##idx(_locks[idx]); // 몇번째 인덱스의 락을 잡아줄 건지
+#define READ_LOCK_IDX(idx) ReadLockGuard readLockGurad_##idx(_locks[idx], typeid(this).name()); // 몇번째 인덱스의 락을 잡아줄 건지
 #define READ_LOCK READ_LOCK_IDX(0)
-#define WRITE_LOCK_IDX(idx) WriteLockGuard writeLockGurad_##idx(_locks[idx]);
+#define WRITE_LOCK_IDX(idx) WriteLockGuard writeLockGurad_##idx(_locks[idx], typeid(this).name());
 #define WRITE_LOCK WRITE_LOCK_IDX(0)
+
+/*----------------
+* MEMORY
+-----------------*/
+#ifdef _DEBUG
+#define X_ALLOC(size) PoolAllocator::Alloc(size)
+#define X_RELEASE(ptr) PoolAllocator::Release(ptr)
+#else
+#define X_ALLOC(size) StompAllocator::Alloc(size)
+#define X_RELEASE(ptr) StompAllocator::Release(ptr)
+#endif
+
 /*----------------
 * CRASH
 -----------------*/

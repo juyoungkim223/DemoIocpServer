@@ -1,70 +1,104 @@
-#include <iostream>
 #include "pch.h"
+#include <iostream>
 #include "CorePch.h"
-#include <thread>
-#include <atomic> // linux, windows 어떤환경에서는 동작하는 atomic
+#include <atomic>
 #include <mutex>
-#include <Windows.h>
+#include <windows.h>
 #include <future>
-#include "CoreMacro.h"
-#include "CoreGlobal.h"
 #include "ThreadManager.h"
 
-//락은 클래스에 기생해서 살음
-class TestLock
-{
-	USE_LOCK; // 락을 하나만 사용하겠다는 의미. Lock _locks[1] 이 코드가 들어간셈
-public:
-	int32 TestRead()
-	{
-		READ_LOCK;
-		if (_queue.empty())
-			return -1;
-		return _queue.front();
-	}
-	void TestPush()
-	{
-		WRITE_LOCK;
-		_queue.push(rand() % 100);
-	}
-	void TestPop()
-	{
-		WRITE_LOCK;
-		if (_queue.empty() == false)
-			_queue.pop();
-	}
-private:
-	queue<int32> _queue;
-};
-TestLock testLock;
-void ThreadWrite()
-{
-	while (true)
-	{
-		testLock.TestPush();
-		this_thread::sleep_for(1ms);
-		testLock.TestPop();
-	}
-}
-void ThreadRead()
-{
-	while (true)
-	{
-		int32 value = testLock.TestRead();
-		cout << value << endl;
-		this_thread::sleep_for(1ms);
-	}
-}
+#include <winsock2.h>
+#include <mswsock.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+
 int main()
 {
-	//ASSERT_CRASH(a != 3);
-	for (int32 i = 0; i < 5; i++)
+	WSAData wsaData;
+	if (::WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+		return 0;
+
+	SOCKET listenSocket = ::socket(AF_INET, SOCK_STREAM, 0);
+	if (listenSocket == INVALID_SOCKET)
 	{
-		GThreadManager->Launch(ThreadWrite);
+		int32 errCode = ::WSAGetLastError();
+		cout << "Socket ErrorCode : " << errCode << endl;
+		return 0;
 	}
-	for (int32 i = 0; i < 5; i++)
+
+	SOCKADDR_IN serverAddr; // IPv4
+	::memset(&serverAddr, 0, sizeof(serverAddr));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_addr.s_addr = ::htonl(INADDR_ANY); //< 니가 알아서 해줘
+	serverAddr.sin_port = ::htons(7777); // 80 : HTTP
+
+	if (::bind(listenSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
 	{
-		GThreadManager->Launch(ThreadRead);
+		int32 errCode = ::WSAGetLastError();
+		cout << "Bind ErrorCode : " << errCode << endl;
+		return 0;
 	}
-	GThreadManager->Join();
+
+	// 영업 시작!
+	if (::listen(listenSocket, 10) == SOCKET_ERROR)
+	{
+		int32 errCode = ::WSAGetLastError();
+		cout << "Listen ErrorCode : " << errCode << endl;
+		return 0;
+	}
+
+	// -----------------------------
+
+	while (true)
+	{
+		SOCKADDR_IN clientAddr; // IPv4
+		::memset(&clientAddr, 0, sizeof(clientAddr));
+		int32 addrLen = sizeof(clientAddr);
+
+		SOCKET clientSocket = ::accept(listenSocket, (SOCKADDR*)&clientAddr, &addrLen);
+		if (clientSocket == INVALID_SOCKET)
+		{
+			int32 errCode = ::WSAGetLastError();
+			cout << "Accept ErrorCode : " << errCode << endl;
+			return 0;
+		}
+
+		// 손님 입장!
+		char ipAddress[16];
+		::inet_ntop(AF_INET, &clientAddr.sin_addr, ipAddress, sizeof(ipAddress));
+		cout << "Client Connected! IP = " << ipAddress << endl;
+
+		// TODO
+		while (true)
+		{
+			char recvBuffer[1000];
+
+			this_thread::sleep_for(1s);
+
+			int32 recvLen = ::recv(clientSocket, recvBuffer, sizeof(recvBuffer), 0);
+			if (recvLen <= 0)
+			{
+				int32 errCode = ::WSAGetLastError();
+				cout << "Recv ErrorCode : " << errCode << endl;
+				return 0;
+			}
+
+			cout << "Recv Data! Data = " << recvBuffer << endl;
+			cout << "Recv Data! Len = " << recvLen << endl;
+
+			/*int32 resultCode = ::send(clientSocket, recvBuffer, recvLen, 0);
+			if (resultCode == SOCKET_ERROR)
+			{
+				int32 errCode = ::WSAGetLastError();
+				cout << "Send ErrorCode : " << errCode << endl;
+				return 0;
+			}*/
+		}
+	}
+
+	// -----------------------------
+
+
+	// 윈속 종료
+	::WSACleanup();
 }

@@ -4,4 +4,5 @@
 */
 
 extern class ThreadManager* GThreadManager; // 전방선언은 포인터형으로 전역변수
-
+extern class Memory* GMemory;
+extern class DeadLockProfiler* GDeadLockProfiler;

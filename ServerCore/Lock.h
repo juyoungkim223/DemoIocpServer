@@ -35,10 +35,10 @@ class Lock
 	};
 
 public:
-	void WriteLock();
-	void WriteUnlock();
-	void ReadLock();
-	void ReadUnlock();
+	void WriteLock(const char* name);
+	void WriteUnlock(const char* name);
+	void ReadLock(const char* name);
+	void ReadUnlock(const char* name);
 private:
 	Atomic<uint32> _lockFlag; // WRITE, READ 카운트 용도
 	uint16 _writeCount = 0; // WRITE 카운트 용도
@@ -52,17 +52,19 @@ class ReadLockGuard
 {
 public:
 	//RAAI 패턴, 생성자에서 락 잡고 소멸자에서 락 해제
-	ReadLockGuard(Lock& lock) : _lock(lock) { _lock.ReadLock(); }
-	~ReadLockGuard() { _lock.ReadUnlock(); }
+	ReadLockGuard(Lock& lock, const char* name) : _lock(lock), _name(name) { _lock.ReadLock(name); }
+	~ReadLockGuard() { _lock.ReadUnlock(_name); }
 private:
 	Lock& _lock;
+	const char* _name;
 };
 class WriteLockGuard
 {
 public:
 	//RAAI 패턴, 생성자에서 락 잡고 소멸자에서 락 해제
-	WriteLockGuard(Lock& lock) : _lock(lock) { _lock.WriteLock(); }
-	~WriteLockGuard() { _lock.WriteUnlock(); }
+	WriteLockGuard(Lock& lock, const char* name) : _lock(lock), _name(name) { _lock.WriteLock(name); }
+	~WriteLockGuard() { _lock.WriteUnlock(_name); }
 private:
 	Lock& _lock;
+	const char* _name;
 };

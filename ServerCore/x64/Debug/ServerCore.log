@@ -1,8 +1,2 @@
-﻿  pch.cpp
-  CoreGlobal.cpp
-  CorePch.cpp
-  CoreTLS.cpp
-  Lock.cpp
-  ThreadManager.cpp
-  Generating Code...
+﻿  Memory.cpp
   ServerCore.vcxproj -> C:\Develop\CPPServer\Server\Libraries\Debug\ServerCore.lib

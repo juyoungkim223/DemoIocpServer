@@ -4,6 +4,9 @@
 */
 #include <thread>
 #include <functional> // 콜백함수에서 사용됨
+/*------------------
+	ThreadManager
+-------------------*/
 class ThreadManager
 {
 public:
